@@ -1,5 +1,5 @@
 const meals = document.getElementById("meals");
-
+const favMeals = document.getElementById("fav-meals");
 
 
 getRandomMeal();
@@ -65,13 +65,15 @@ function addRandomMeal(mealData, random = false) {
 
     btn.addEventListener("click", () => {
 
-        if(btn.classList.contains("active")) {
+        if (btn.classList.contains("active")) {
             removeMealFromLocalStorage(mealData.idMeal);
             btn.classList.remove("active");
         } else {
             storeRandomMealInLocalStorage(mealData.idMeal);
             btn.classList.add("active");
         }
+
+        fetchFavMeals();
     });
 
     meals.appendChild(meal);
@@ -97,13 +99,35 @@ function getMealsFromLocalStorage() {
 
 async function fetchFavMeals() {
 
+    //Clean the ul
+    favMeals.innerHTML = "";
+
     const mealIds = getMealsFromLocalStorage();
 
-    for(let i= 0; i < mealIds.length; i++) {
+    for (let i = 0; i < mealIds.length; i++) {
         const mealId = mealIds[i];
 
         const meal = await getMealById(mealId);
 
         addMealToFav(meal);
     }
+}
+
+function addMealToFav(mealData) {
+
+    const favMeal = document.createElement("li");
+
+    favMeal.innerHTML = `
+        <img src="${mealData.strMealThumb}" alt="${mealData.strMeal}">
+        <span>${mealData.strMeal}</span>
+        <button class="clear"><i class="fa-solid fa-xmark"></i></button>`;
+
+    const btn = favMeal.querySelector(".clear");
+    
+    btn.addEventListener("click", () => {
+        removeMealFromLocalStorage(mealData.idMeal);
+        fetchFavMeals();
+    });
+
+    favMeals.appendChild(favMeal);
 }
